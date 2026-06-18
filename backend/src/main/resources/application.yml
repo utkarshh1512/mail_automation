@@ -1,0 +1,18 @@
+spring:
+  application.name: mail-automation
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/mail_automation}
+    username: ${SPRING_DATASOURCE_USERNAME:mail_admin}
+    password: ${SPRING_DATASOURCE_PASSWORD:mail_password}
+  jpa:
+    hibernate.ddl-auto: validate
+    open-in-view: false
+  data.redis.host: ${REDIS_HOST:localhost}
+app:
+  ai:
+    confidence-threshold: 0.70
+    openai-model: gpt-4o
+  gmail.poll-interval-ms: 60000
+  notifications:
+    slack-webhook-url: ${SLACK_WEBHOOK_URL:}
+    teams-webhook-url: ${TEAMS_WEBHOOK_URL:}
