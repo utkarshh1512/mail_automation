@@ -1,0 +1,26 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-mail_automation}
+      POSTGRES_USER: ${POSTGRES_USER:-mail_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mail_password}
+    ports: ["5432:5432"]
+    volumes: ["postgres_data:/var/lib/postgresql/data"]
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+  chroma:
+    image: chromadb/chroma:latest
+    ports: ["8000:8000"]
+  backend:
+    build: ./backend
+    env_file: .env
+    depends_on: [postgres, redis, chroma]
+    ports: ["8080:8080"]
+  frontend:
+    build: ./frontend
+    depends_on: [backend]
+    ports: ["5173:80"]
+volumes:
+  postgres_data:

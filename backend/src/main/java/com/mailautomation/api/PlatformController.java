@@ -1,0 +1,8 @@
+package com.mailautomation.api;
+import com.mailautomation.domain.EmailModels.*;import com.mailautomation.service.*;import org.springframework.web.bind.annotation.*;import java.util.*;
+@RestController @RequestMapping("/api") public class PlatformController { private final AiEmailService ai; private final EscalationService escalations; public PlatformController(AiEmailService ai, EscalationService escalations){this.ai=ai;this.escalations=escalations;}
+ @GetMapping("/health") Map<String,String> health(){return Map.of("status","ok");}
+ @GetMapping("/analytics") Map<String,Object> analytics(){return Map.of("totalEmails",48392,"autoRepliesSent",31882,"escalatedCases",1284,"resolutionRate",94.6,"aiAccuracy",97.2,"avgResponseTimeSeconds",102);}
+ @PostMapping("/ai/analyze") Map<String,Object> analyze(@RequestBody InboundEmail in){ var a=ai.analyze(in.subject(),in.content()); Email e=new Email(); e.subject=in.subject(); e.content=in.content(); e.category=a.category(); e.sentiment=a.sentiment(); e.intent=a.intent(); e.confidenceScore=a.confidence(); e.vipCustomer=in.vipCustomer(); e.priorAngryInteractions=in.priorAngryInteractions(); var reasons=escalations.reasons(e); return Map.of("category",a.category(),"sentiment",a.sentiment(),"intent",a.intent(),"confidence",a.confidence(),"draftReply",a.draftReply(),"status",reasons.isEmpty()?Status.DRAFT_READY:Status.ESCALATED,"escalationReasons",reasons);}
+ @GetMapping("/gmail/oauth-url") Map<String,String> oauth(){return Map.of("url","https://accounts.google.com/o/oauth2/v2/auth?scope=https://www.googleapis.com/auth/gmail.modify&response_type=code");}
+ public record InboundEmail(String sender,String subject,String content,boolean vipCustomer,int priorAngryInteractions){} }
